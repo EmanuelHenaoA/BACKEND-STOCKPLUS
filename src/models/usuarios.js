@@ -31,7 +31,9 @@ const usuariosSchema = new mongoose.Schema (
             type: mongoose.Schema.Types.ObjectId,
             ref: "Roles",
             required: [true, 'El rol es obligatorio'],
-        }
+        },
+        resetPasswordToken: String,
+        resetPasswordExpires: Date
     },
     {
         timestamps: true,

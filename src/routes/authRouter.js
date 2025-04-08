@@ -7,6 +7,7 @@ const { registroValidacion, loginValidacion } = require ('../middlewares/authMid
 
 router.post('/registro', registroValidacion, authController.registrarUsuario )
 router.post('/login', loginValidacion, authController.loginUsuario)
-
+router.post('/forgot-password', authController.enviarTokenRecuperacion);
+router.post('/reset-password/:token', authController.resetearContraseña);
 
 module.exports = router
