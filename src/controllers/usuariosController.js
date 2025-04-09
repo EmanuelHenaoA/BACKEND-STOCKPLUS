@@ -13,15 +13,35 @@ const getOneUsuario = async(req, res) => {
 }
 
 const putUsuario = async (req, res) => {
-    const {_id, nombre, telefono, direccion, email, contraseña} = req.body
-    let msg = 'Usuario actualizado'
-    try{
-        await Usuario.findByIdAndUpdate(_id, {nombre: nombre, telefono: telefono, direccion: direccion, email: email, contraseña: contraseña})
-    }catch(error){
-        msg = error
+    const { nombre, telefono, direccion, email, rol, contraseña } = req.body;
+    const idUsuario = req.params.id;
+
+    let msg = "Usuario actualizado";
+
+    try {
+        let nuevaContraseña = contraseña;
+
+        if (contraseña) { // Solo encripta si el usuario cambió la contraseña
+            const salt = await bcrypt.genSalt(10);
+            nuevaContraseña = await bcrypt.hash(contraseña, salt);
+        }
+
+        const usuarioActualizado = await Usuario.findByIdAndUpdate(
+            idUsuario,
+            { nombre, telefono, direccion, email, rol, contraseña: nuevaContraseña },
+            { new: true }
+        );
+
+        if (!usuarioActualizado) {
+            return res.status(404).json({ success: false, msg: "Usuario no encontrado" });
+        }
+
+    } catch (error) {
+        msg = error;
     }
-    res.json({msg:msg})
-}
+
+    res.json({ msg: msg });
+};
 
 const postUsuario = async (req, res) => {
     const body = req.body

@@ -42,7 +42,7 @@ const putRepuesto = async (req, res) => {
 };
 
 const postRepuesto = async (req, res) => {
-    const { existencias, precio, precioVenta, idMarca } = req.body;
+    const { existencias, precio, precioVenta, idCategoria, idMarca } = req.body;
 
     if (existencias < 0 || precio < 0 || precioVenta < 0) {
         return res.status(500).json({ msg: 'El valor de existencias y el precio no puede ser negativo' });

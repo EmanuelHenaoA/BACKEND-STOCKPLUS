@@ -12,10 +12,12 @@ const getOneProveedor = async(req, res) => {
 }
 
 const putProveedor = async (req, res) => {
-    const {_id, nombre, telefono, email} = req.body
+    const {nombre, telefono, email} = req.body
+    const idProveedor = req.params.id; // 🔎 Tomar el ID desde la URL
+
     let msg = 'Proveedor actualizado'
     try{
-        await Proveedor.findByIdAndUpdate(_id, {nombre: nombre, telefono: telefono, email: email},  { new: true, runValidators: true })
+        await Proveedor.findByIdAndUpdate(idProveedor, {nombre: nombre, telefono: telefono, email: email},  { new: true, runValidators: true })
     }catch(error){
         msg = error
     }

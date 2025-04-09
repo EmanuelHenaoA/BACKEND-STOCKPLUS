@@ -13,10 +13,12 @@ const getOneMarca = async(req, res) => {
 }
 
 const putMarca = async (req, res) => {
-    const {_id, nombre, estado} = req.body
+    const { nombre, estado} = req.body
+    const idMarca = req.params.id; // 🔎 Tomar el ID desde la URL
+    
     let msg = 'Marca Actualizada'
     try{
-        await Marcas.findByIdAndUpdate(_id, {nombre: nombre, estado: estado})
+        await Marcas.findByIdAndUpdate(idMarca, {nombre: nombre, estado: estado})
     }catch(error){
         msg = error
     }

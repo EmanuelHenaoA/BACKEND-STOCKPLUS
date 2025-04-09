@@ -66,7 +66,7 @@ const generarAccessToken = async (usuario) => {
     return token;
 };
 
-  
+
 
 const loginUsuario = async (req, res) => {
     try{
@@ -79,7 +79,7 @@ const loginUsuario = async (req, res) => {
         }
         
         const {email, contraseña} = req.body
-
+        
         const usuarioData = await Usuario.findOne({email})
         if(!usuarioData){
             return res.status(400).json({
@@ -87,7 +87,7 @@ const loginUsuario = async (req, res) => {
                 msg: 'El email o la contraseña son incorrectos'
             })
         }
-
+        
         const contraseñaIgual = await bcrypt.compare(contraseña, usuarioData.contraseña)
 
         if(!contraseñaIgual){
@@ -96,10 +96,12 @@ const loginUsuario = async (req, res) => {
                 msg: 'El email o la contraseña son incorrectos'
             })
         }
-
+        
         const accessToken = await generarAccessToken({ _id: usuarioData._id, rol: usuarioData.rol });
         console.log("✅ Token generado en el backend:", accessToken);
-
+        console.log("✅ ACCESS_SECRET_TOKEN:", process.env.ACCESS_SECRET_TOKEN);
+        console.log("✅ EMAIL_USER:", process.env.EMAIL_USER);
+        
         return res.status(200).json({
             success: true,
             msg: 'Logueado Exitosamente',

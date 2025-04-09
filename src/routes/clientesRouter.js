@@ -14,7 +14,7 @@ const clientesRouter = Router()
 clientesRouter.get('/',autenticarUsuario, verificarPermiso('verCliente'), getCliente)
 clientesRouter.get('/:id',autenticarUsuario, verificarPermiso('verCliente'), clienteValidacionId, manejarErroresValidacion, getOneCliente)
 clientesRouter.post('/',autenticarUsuario, verificarPermiso('crearCliente'),clientesValidacion, manejarErroresValidacion, postCliente)
-clientesRouter.put('/',autenticarUsuario, verificarPermiso('editarCliente'), actualizarClienteValidacion, manejarErroresValidacion, putCliente)
+clientesRouter.put('/:id',autenticarUsuario, verificarPermiso('editarCliente'), actualizarClienteValidacion, manejarErroresValidacion, putCliente)
 clientesRouter.delete('/:id',autenticarUsuario, verificarPermiso('eliminarCliente'), clienteValidacionId, manejarErroresValidacion, deleteCliente)
 
 module.exports = clientesRouter

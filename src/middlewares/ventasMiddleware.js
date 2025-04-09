@@ -10,7 +10,12 @@ const validarVenta = [
 const validarVentaId = [
     check('id').isMongoId().withMessage('El ID de la venta no es válido')
 ]
+
+const validarPutVenta = [
+    check('idVenta').isMongoId().withMessage('El ID de la venta no es válido')
+]
 module.exports = {
     validarVenta,
-    validarVentaId
+    validarVentaId,
+    validarPutVenta
 }

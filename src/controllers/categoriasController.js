@@ -12,10 +12,12 @@ const getOneCategoria = async(req, res) => {
 }
 
 const putCategoria = async (req, res) => {
-    const {id, nombre, estado} = req.body
+    const {nombre, estado} = req.body
+    const idCategoria = req.params.id; // 🔎 Tomar el ID desde la URL
+
     let msg = 'Categoria Actualizada'
     try{
-        await Categoria.findByIdAndUpdate(id, {nombre: nombre, estado: estado})
+        await Categoria.findByIdAndUpdate(idCategoria, {nombre: nombre, estado: estado})
     }catch(error){
         msg = error
     }

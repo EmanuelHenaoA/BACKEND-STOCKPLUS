@@ -15,7 +15,7 @@ const proveedoresRouter = Router()
 proveedoresRouter.get('/', autenticarUsuario, verificarPermiso('verProveedor'), getProveedor)
 proveedoresRouter.get('/:id',autenticarUsuario, verificarPermiso('verProveedor'),proveedorValidacionId, manejarErroresValidacion, getOneProveedor)
 proveedoresRouter.post('/',autenticarUsuario, verificarPermiso('crearProveedor'),proveedoresValidacion, manejarErroresValidacion, postProveedor)
-proveedoresRouter.put('/',autenticarUsuario, verificarPermiso('editarProveedor'),actualizarProveedorValidacion,  manejarErroresValidacion, putProveedor)
+proveedoresRouter.put('/:id',autenticarUsuario, verificarPermiso('editarProveedor'),actualizarProveedorValidacion,  manejarErroresValidacion, putProveedor)
 proveedoresRouter.delete('/:id',autenticarUsuario, verificarPermiso('eliminarProveedor'),proveedorValidacionId, manejarErroresValidacion, deleteProveedor)
 
 module.exports = proveedoresRouter

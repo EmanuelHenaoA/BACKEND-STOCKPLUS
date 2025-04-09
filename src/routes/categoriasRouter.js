@@ -14,7 +14,7 @@ const categoriasRouter = Router()
 categoriasRouter.get('/', autenticarUsuario, verificarPermiso('verCategoria'), getCategoria)
 categoriasRouter.get('/:id', autenticarUsuario, verificarPermiso('verCategoria'), categoriaPorId, manejarErroresValidacion, getOneCategoria)
 categoriasRouter.post('/', autenticarUsuario, verificarPermiso('crearCategoria'), categoriasValidacion, manejarErroresValidacion, postCategoria)
-categoriasRouter.put('/', autenticarUsuario, verificarPermiso('editarCategoria'), actualizarCategoriaValidacion, manejarErroresValidacion, putCategoria)
+categoriasRouter.put('/:id', autenticarUsuario, verificarPermiso('editarCategoria'), actualizarCategoriaValidacion, manejarErroresValidacion, putCategoria)
 categoriasRouter.delete('/:id', autenticarUsuario, verificarPermiso('eliminarCategoria'), categoriaPorId, manejarErroresValidacion, deleteCategoria)
 categoriasRouter.patch('/:id', autenticarUsuario, verificarPermiso('eliminarCategoria'), categoriaPorId, cambiarEstadoCategoria)
 

@@ -13,7 +13,7 @@ const marcasRouter = Router()
 marcasRouter.get('/', autenticarUsuario, verificarPermiso('verMarca'), getMarca)
 marcasRouter.get('/:id', autenticarUsuario, verificarPermiso('verMarca'), marcaPorId, manejarErroresValidacion, getOneMarca)
 marcasRouter.post('/', autenticarUsuario, verificarPermiso('crearMarca'), marcasValidacion, manejarErroresValidacion, postMarca)
-marcasRouter.put('/', autenticarUsuario, verificarPermiso('editarMarca'), actualizarMarcaValidacion, manejarErroresValidacion, putMarca)
+marcasRouter.put('/:id', autenticarUsuario, verificarPermiso('editarMarca'), actualizarMarcaValidacion, manejarErroresValidacion, putMarca)
 marcasRouter.delete('/:id', autenticarUsuario, verificarPermiso('eliminarMarca'), marcaPorId, manejarErroresValidacion, deleteMarca)
 marcasRouter.patch('/:id', autenticarUsuario, verificarPermiso('eliminarMarca'),  marcaPorId, manejarErroresValidacion, cambiarEstadoMarca)
 

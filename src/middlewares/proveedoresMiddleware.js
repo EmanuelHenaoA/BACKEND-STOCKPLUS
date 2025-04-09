@@ -11,8 +11,8 @@ exports.proveedoresValidacion = [
 ]
 
 exports.actualizarProveedorValidacion = [
-    check('_id', 'El id del proveedor es obligatorio').not().isEmpty(),
-    check('_id').isMongoId().withMessage('El ID del proveedor no es válido'),
+    check('id', 'El id del proveedor es obligatorio').not().isEmpty(),
+    check('id').isMongoId().withMessage('El ID del proveedor no es válido'),
     check('nombre', 'El nombre del proveedor es obligatorio').optional().isString(),
     check('telefono', 'El número teléfono es obligatorio').optional().isNumeric(),
     check('email', 'Por favor ingresa un email válido').optional().isEmail().normalizeEmail({

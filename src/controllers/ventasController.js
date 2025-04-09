@@ -14,22 +14,15 @@ const obtenerUnaVenta = async(req, res) => {
 }
 
 const actualizarVenta = async (req, res) => {
-    const { idVenta, repuestos, fecha, idCliente} = req.body;
-    let msg = 'Venta actualizada';
+    const { idVenta, repuestos, fecha, idCliente } = req.body;
+    let msg = "Venta actualizada";
     let nuevoTotal = 0;
 
     try {
         // Obtener la venta actual antes de la actualización
         const ventaActual = await Ventas.findById(idVenta);
         if (!ventaActual) {
-            return res.status(404).json({ msg: 'Venta no encontrada' });
-        }
-
-        // Revertir los cambios en existencias de los repuestos de la compra actual
-        for (const item of ventaActual.repuestos) {
-            await Repuestos.findByIdAndUpdate(item.idRepuesto, {
-                $inc: { existencias: -item.cantidad } // Restar las cantidades actuales
-            });
+            return res.status(404).json({ msg: "Venta no encontrada" });
         }
 
         // Procesar los nuevos repuestos y calcular el nuevo total
@@ -39,13 +32,21 @@ const actualizarVenta = async (req, res) => {
                 return res.status(404).json({ msg: `Repuesto con id ${item.idRepuesto} no encontrado` });
             }
 
-            if (repuesto.existencias < item.cantidad) {
-                return res.status(400).json({ msg: `No tienes esa cantidad de existencias del repuesto ${repuestos.nombre}` });
-            }            
+            // Obtener la cantidad previa en la venta
+            const itemPrevio = ventaActual.repuestos.find(r => r.idRepuesto.toString() === item.idRepuesto);
+            const cantidadAnterior = itemPrevio ? itemPrevio.cantidad : 0;
 
-            // Actualizar existencias con las nuevas cantidades
+            // Calcular la diferencia entre la cantidad nueva y la anterior
+            const diferenciaCantidad = item.cantidad - cantidadAnterior;
+
+            // Verificar si el ajuste de existencias es posible
+            if (repuesto.existencias - diferenciaCantidad < 0) {
+                return res.status(400).json({ msg: `No puedes reducir más existencias de las disponibles para el repuesto ${repuesto.nombre}` });
+            }
+
+            // Actualizar existencias correctamente con la diferencia
             await Repuestos.findByIdAndUpdate(item.idRepuesto, {
-                $inc: { existencias: item.cantidad }
+                $inc: { existencias: -diferenciaCantidad } // 🔥 Solo ajusta la cantidad nueva en relación con la anterior
             });
 
             // Calcular el valor del repuesto y sumarlo al nuevo total
@@ -58,6 +59,7 @@ const actualizarVenta = async (req, res) => {
             idVenta,
             { idCliente: idCliente, repuestos: repuestos, fecha: fecha, total: nuevoTotal }
         );
+
     } catch (error) {
         msg = error.message;
         return res.status(500).json({ msg });
@@ -65,7 +67,6 @@ const actualizarVenta = async (req, res) => {
 
     res.json({ msg });
 };
-
 
 const crearVenta = async (req, res) => {
     const { repuestos, idCliente } = req.body;
