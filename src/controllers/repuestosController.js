@@ -4,9 +4,17 @@ const Categorias = require ('../models/categorias')
 
 
 const getRepuesto = async (req, res) => {
-    const repuestos = await Repuesto.find()
-    res.json({repuestos})
-}
+    try {
+        const repuestos = await Repuesto.find()
+            .populate("idCategoria") // 🔥 Trae el objeto completo de la categoría
+            .populate("idMarca"); // 🔥 Trae el objeto completo de la marca
+
+        res.status(200).json({ repuestos });
+    } catch (error) {
+        console.error("Error al obtener repuestos:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
 
 const getOneRepuesto = async(req, res) => {
     const {id} = req.params

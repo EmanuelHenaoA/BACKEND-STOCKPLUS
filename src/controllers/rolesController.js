@@ -1,6 +1,7 @@
 const Roles = require('../models/roles'); // Modelo de Roles
 const Permisos = require('../models/permisos'); // Modelo de Permisos
 const RolesPermisos = require('../models/rolesPermisos'); // Modelo de la relación Roles-Permisos
+const Usuarios = require('../models/usuarios')
 
 // Crear un nuevo rol con permisos
 const crearRol = async (req, res) => {
@@ -41,9 +42,28 @@ const crearRol = async (req, res) => {
     }
 };
 
-const getRol = async (req, res) => { 
-    const roles = await Roles.find()
-    res.json({roles}) }
+// Obtener todos los roles
+const getRol = async (req, res) => {
+    try {
+        const roles = await Roles.find();
+        
+        // Para cada rol, obtenemos sus permisos
+        const rolesConPermisos = await Promise.all(roles.map(async (rol) => {
+            const permisos = await RolesPermisos.find({ rol: rol._id })
+                .populate('permiso', 'nombre descripcion'); // Population de la información del permiso
+            
+            return {
+                ...rol.toObject(),
+                permisos: permisos.map(p => p.permiso)
+            };
+        }));
+        
+        res.status(200).json(rolesConPermisos);
+    } catch (error) {
+        console.error('Error al obtener roles:', error);
+        res.status(500).json({ error: 'Error al obtener los roles.' });
+    }
+};
 
 // Obtener un rol por su ID
 const getOneRol = async (req, res) => {
@@ -65,15 +85,55 @@ const getOneRol = async (req, res) => {
 // Actualizar un rol
 const putRol = async (req, res) => {
     const { id } = req.params;
-    const { nombre, estado } = req.body;
+    const { nombre, estado, permisos } = req.body;
 
     try {
+        // Actualizamos la información básica del rol
         const rolActualizado = await Roles.findByIdAndUpdate(id, { nombre, estado }, { new: true });
+        
         if (!rolActualizado) {
             return res.status(404).json({ error: 'Rol no encontrado.' });
         }
 
-        res.status(200).json({ message: 'Rol actualizado correctamente.', rol: rolActualizado });
+        // Si se proporcionan permisos, actualizamos las relaciones
+        if (permisos && Array.isArray(permisos)) {
+            // Obtenemos los permisos actuales del rol
+            const permisosActuales = await RolesPermisos.find({ rol: id }).select('permiso');
+            const idsPermisosActuales = permisosActuales.map(p => p.permiso.toString());
+            
+            // Identificamos permisos a eliminar (los que están en actuales pero no en nuevos)
+            const permisosAEliminar = idsPermisosActuales.filter(p => !permisos.includes(p));
+            if (permisosAEliminar.length > 0) {
+                await RolesPermisos.deleteMany({ 
+                    rol: id, 
+                    permiso: { $in: permisosAEliminar } 
+                });
+            }
+            
+            // Identificamos permisos a añadir (los que están en nuevos pero no en actuales)
+            const permisosAAgregar = permisos.filter(p => !idsPermisosActuales.includes(p));
+            if (permisosAAgregar.length > 0) {
+                const nuevasRelaciones = permisosAAgregar.map(permisoId => ({
+                    rol: id,
+                    permiso: permisoId
+                }));
+                await RolesPermisos.insertMany(nuevasRelaciones);
+            }
+        }
+
+        // Obtenemos el rol actualizado con sus permisos para la respuesta
+        const permisosDelRol = await RolesPermisos.find({ rol: id })
+            .populate('permiso', 'nombre descripcion');
+        
+        const respuesta = {
+            ...rolActualizado.toObject(),
+            permisos: permisosDelRol.map(p => p.permiso)
+        };
+
+        res.status(200).json({ 
+            message: 'Rol actualizado correctamente.', 
+            rol: respuesta 
+        });
     } catch (error) {
         console.error('Error al actualizar el rol:', error);
         res.status(500).json({ error: 'Error al actualizar el rol.' });
@@ -101,10 +161,34 @@ const deleteRol = async (req, res) => {
     }
 };
 
+
+const cambiarEstadoRol = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const rol = await Roles.findById(id);
+        if (!rol) {
+            return res.status(404).json({ msg: 'Rol no encontrado' });
+        }
+
+        // Cambiar entre "Activo" e "Inactivo"
+        rol.estado = rol.estado === 'Activo' ? 'Inactivo' : 'Activo';
+        await rol.save();
+
+        res.json({ 
+            msg: `Estado del rol cambiado exitosamente a ${rol.estado}`, 
+            rol
+        });
+    } catch (error) {
+        res.status(500).json({ msg: error.message });
+    }
+};
+
 module.exports = {
     crearRol,
     getRol,
     getOneRol,
     putRol,
-    deleteRol
+    deleteRol,
+    cambiarEstadoRol
 };

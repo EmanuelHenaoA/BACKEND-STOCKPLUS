@@ -3,9 +3,15 @@ const Repuestos = require('../models/repuestos');
 const Clientes = require('../models/clientes');
 
 const obtenerVenta = async (req, res) => {
-    const ventas = await Ventas.find()
-    res.json({ventas})
-}
+    try {
+        const ventas = await Ventas.find().populate("idCliente"); // 🔥 Trae los datos completos del cliente
+
+        res.status(200).json({ ventas });
+    } catch (error) {
+        console.error("Error al obtener ventas:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
 
 const obtenerUnaVenta = async(req, res) => {
     const {id} = req.params

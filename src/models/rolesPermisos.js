@@ -19,6 +19,9 @@ const RolesPermisosSchema = new mongoose.Schema(
     }
 );
 
+// Índice compuesto para evitar duplicados
+RolesPermisosSchema.index({ rol: 1, permiso: 1 }, { unique: true });
+
 module.exports = mongoose.model('RolesPermisos', RolesPermisosSchema);
 
   

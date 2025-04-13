@@ -2,9 +2,15 @@ const Usuario = require ('../models/usuarios')
 const bcrypt = require ('bcrypt')
 
 const getUsuario = async (req, res) => {
-    const usuarios = await Usuario.find()
-    res.json({usuarios})
-}
+    try {
+        const usuarios = await Usuario.find().populate("rol"); // 🔥 Esto traerá el nombre del rol
+        
+        res.status(200).json({ usuarios });
+    } catch (error) {
+        console.error("Error al obtener usuarios:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
 
 const getOneUsuario = async(req, res) => {
     const {id} = req.params

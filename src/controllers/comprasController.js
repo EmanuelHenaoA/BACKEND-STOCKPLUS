@@ -3,9 +3,15 @@ const Repuestos = require('../models/repuestos');
 const Proveedores = require('../models/proveedores');
 
 const getCompra = async (req, res) => {
-    const compras = await Compras.find()
-    res.json({compras})
-}
+    try {
+        const compras = await Compras.find().populate("idProveedor"); // 🔥 Trae los datos completos del cliente
+
+        res.status(200).json({ compras });
+    } catch (error) {
+        console.error("Error al obtener compras:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
 
 const getOneCompra = async(req, res) => {
     const {id} = req.params
