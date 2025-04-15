@@ -24,11 +24,12 @@ const getOneRepuesto = async(req, res) => {
 
 
 const putRepuesto = async (req, res) => {
-    const { idRepuesto, nombre, existencias, precio, precioVenta, idCategoria } = req.body;
+    const { id } = req.params;
+    const { idRepuesto, nombre, existencias, precio, precioVenta, idCategoria, idMarca } = req.body;
     let msg = 'Repuesto actualizado';
 
     try {
-        // Validar que la marca asociada esté activa
+        // Validar que la categoria asociada esté activa
         const categoria = await Categorias.findById(idCategoria);
         if (!categoria) {
             return res.status(404).json({ msg: 'Categoria no encontrada' });
@@ -38,9 +39,9 @@ const putRepuesto = async (req, res) => {
         }
 
         // Actualizar el repuesto si la marca es válida
-        await Repuesto.findOneAndUpdate(
-            { idRepuesto: idRepuesto },
-            { nombre: nombre, existencias: existencias, precio: precio, precioVenta: precioVenta }
+        await Repuesto.findByIdAndUpdate(
+            id,
+            { idRepuesto: idRepuesto, nombre: nombre, existencias: existencias, precio: precio, precioVenta: precioVenta, idCategoria: idCategoria, idMarca: idMarca  }
         );
     } catch (error) {
         msg = error.message;
@@ -96,10 +97,33 @@ const deleteRepuesto = async (req, res) => {
     res.json({msg:msg})
 }
 
+const cambiarEstadoRepuesto = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const repuesto = await Repuesto.findById(id);
+        if (!repuesto) {
+            return res.status(404).json({ msg: 'Repuesto no encontrado' });
+        }
+
+        // Cambiar entre "Activo" e "Inactivo"
+        repuesto.estado = repuesto.estado === 'Activo' ? 'Inactivo' : 'Activo';
+        await repuesto.save();
+
+        res.json({ 
+            msg: `Estado del repuesto cambiado exitosamente a ${repuesto.estado}`, 
+            repuesto 
+        });
+    } catch (error) {
+        res.status(500).json({ msg: error.message });
+    }
+};
+
 module.exports = {
     getRepuesto,
     getOneRepuesto,
     putRepuesto,
     postRepuesto,
-    deleteRepuesto
+    deleteRepuesto,
+    cambiarEstadoRepuesto
 }

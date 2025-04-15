@@ -11,7 +11,8 @@ const validarRepuesto = [
 ]
 
 const ObtenerPorIdValidacion = [
-    check('idRepuesto', 'El id del repuesto es obligatorio').not().isEmpty(),
+    check('id', 'El id del repuesto es obligatorio').not().isEmpty(),
+    check('id').isMongoId().withMessage('El ID del repuesto no es válido')
 
 ]
 

@@ -1,5 +1,5 @@
 const {Router} = require ('express')
-const { getRepuesto, getOneRepuesto, postRepuesto, putRepuesto, deleteRepuesto } = require ('../controllers/repuestosController')
+const { getRepuesto, getOneRepuesto, postRepuesto, putRepuesto, deleteRepuesto, cambiarEstadoRepuesto } = require ('../controllers/repuestosController')
 
 const {validarRepuesto, ObtenerPorIdValidacion} = require('../middlewares/repuestosMiddleware')
 
@@ -13,7 +13,9 @@ const repuestosRouter = Router()
 repuestosRouter.get('/', autenticarUsuario, verificarPermiso('verRepuesto'), getRepuesto)
 repuestosRouter.get('/:id', autenticarUsuario, verificarPermiso('verRepuesto'), ObtenerPorIdValidacion, manejarErroresValidacion,getOneRepuesto)
 repuestosRouter.post('/', autenticarUsuario, verificarPermiso('crearRepuesto'), validarRepuesto, manejarErroresValidacion,postRepuesto)
-repuestosRouter.put('/', autenticarUsuario, verificarPermiso('editarRepuesto'), ObtenerPorIdValidacion, manejarErroresValidacion,putRepuesto)
+repuestosRouter.put('/:id', autenticarUsuario, verificarPermiso('editarRepuesto'), ObtenerPorIdValidacion, manejarErroresValidacion,putRepuesto)
 repuestosRouter.delete('/:id', autenticarUsuario, verificarPermiso('eliminarRepuesto'), ObtenerPorIdValidacion, deleteRepuesto)
+repuestosRouter.patch('/:id', autenticarUsuario, verificarPermiso('eliminarRepuesto'), ObtenerPorIdValidacion, cambiarEstadoRepuesto)
+
 
 module.exports = repuestosRouter
