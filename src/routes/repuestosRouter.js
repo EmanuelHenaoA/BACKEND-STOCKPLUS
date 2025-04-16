@@ -1,5 +1,5 @@
 const {Router} = require ('express')
-const { getRepuesto, getOneRepuesto, postRepuesto, putRepuesto, deleteRepuesto, cambiarEstadoRepuesto } = require ('../controllers/repuestosController')
+const { getRepuesto, getOneRepuesto, postRepuesto, putRepuesto, deleteRepuesto, cambiarEstadoRepuesto, getRepuestosActivos, getRepuestosPorCategoria } = require ('../controllers/repuestosController')
 
 const {validarRepuesto, ObtenerPorIdValidacion} = require('../middlewares/repuestosMiddleware')
 
@@ -11,6 +11,8 @@ const manejarErroresValidacion = require('../middlewares/erroresMiddleware');
 
 const repuestosRouter = Router()
 repuestosRouter.get('/', autenticarUsuario, verificarPermiso('verRepuesto'), getRepuesto)
+repuestosRouter.get('/activos', autenticarUsuario, verificarPermiso('verRepuesto'), getRepuestosActivos)
+repuestosRouter.get('/categoria/:categoriaId', autenticarUsuario, verificarPermiso('verRepuesto'), getRepuestosPorCategoria)
 repuestosRouter.get('/:id', autenticarUsuario, verificarPermiso('verRepuesto'), ObtenerPorIdValidacion, manejarErroresValidacion,getOneRepuesto)
 repuestosRouter.post('/', autenticarUsuario, verificarPermiso('crearRepuesto'), validarRepuesto, manejarErroresValidacion,postRepuesto)
 repuestosRouter.put('/:id', autenticarUsuario, verificarPermiso('editarRepuesto'), ObtenerPorIdValidacion, manejarErroresValidacion,putRepuesto)

@@ -2,6 +2,18 @@ const Repuesto = require ('../models/repuestos')
 const Marcas = require ('../models/marcas')
 const Categorias = require ('../models/categorias')
 
+const getRepuestosActivos = async (req, res) => {
+    try {
+        const repuestosActivos = await Repuesto.find({ estado: "Activo" })
+            .populate("idCategoria") // 🔥 Trae el objeto completo de la categoría
+            .populate("idMarca"); // 🔥 Trae el objeto completo de la marca
+
+        res.status(200).json({ repuestos: repuestosActivos });
+    } catch (error) {
+        console.error("Error al obtener repuestos activos:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
 
 const getRepuesto = async (req, res) => {
     try {
@@ -16,6 +28,21 @@ const getRepuesto = async (req, res) => {
     }
 };
 
+const getRepuestosPorCategoria = async (req, res) => {
+    try {
+        const { categoriaId } = req.params; // 🔥 Obtener el ID de la categoría seleccionada
+
+        const repuestosFiltrados = await Repuesto.find({ idCategoria: categoriaId, estado: "Activo" })
+            .populate("idCategoria")
+            .populate("idMarca");
+
+        res.status(200).json({ repuestos: repuestosFiltrados });
+    } catch (error) {
+        console.error("Error al obtener repuestos por categoría:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
+
 const getOneRepuesto = async(req, res) => {
     const {id} = req.params
     const repuesto = await Repuesto.findById(id)
@@ -25,7 +52,7 @@ const getOneRepuesto = async(req, res) => {
 
 const putRepuesto = async (req, res) => {
     const { id } = req.params;
-    const { idRepuesto, nombre, existencias, precio, precioVenta, idCategoria, idMarca } = req.body;
+    const { idRepuesto, nombre, existencias, precio, precioVenta, idCategoria, idMarca, estado} = req.body;
     let msg = 'Repuesto actualizado';
 
     try {
@@ -41,7 +68,7 @@ const putRepuesto = async (req, res) => {
         // Actualizar el repuesto si la marca es válida
         await Repuesto.findByIdAndUpdate(
             id,
-            { idRepuesto: idRepuesto, nombre: nombre, existencias: existencias, precio: precio, precioVenta: precioVenta, idCategoria: idCategoria, idMarca: idMarca  }
+            { idRepuesto: idRepuesto, nombre: nombre, existencias: existencias, precio: precio, precioVenta: precioVenta, idCategoria: idCategoria, idMarca: idMarca, estado: estado }
         );
     } catch (error) {
         msg = error.message;
@@ -121,6 +148,8 @@ const cambiarEstadoRepuesto = async (req, res) => {
 
 module.exports = {
     getRepuesto,
+    getRepuestosActivos,
+    getRepuestosPorCategoria,
     getOneRepuesto,
     putRepuesto,
     postRepuesto,

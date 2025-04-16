@@ -16,5 +16,9 @@ exports.loginValidacion = [
     check('email', 'Por favor ingresa un email valido').isEmail().normalizeEmail({
         gmail_remove_dots: true
     }),
-    body('contraseña').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+    check('contraseña').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+]
+
+exports.recuperarContraseñaValidacion = [
+    check('nuevaContraseña').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
 ]
