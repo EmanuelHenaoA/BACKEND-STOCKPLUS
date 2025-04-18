@@ -20,7 +20,7 @@ const getOneCompra = async(req, res) => {
 }
 
 const putCompra = async (req, res) => {
-    const { idCompra, repuestos, fecha } = req.body;
+    const { idCompra, repuestos, fecha, idProveedor } = req.body;
     let msg = 'Compra actualizada';
     let nuevoTotal = 0;
 
@@ -58,7 +58,7 @@ const putCompra = async (req, res) => {
         // Actualizar la compra con la nueva información y el nuevo total
         await Compras.findByIdAndUpdate(
             idCompra,
-            { repuestos: repuestos, fecha: fecha, total: nuevoTotal }
+            { repuestos: repuestos, fecha: fecha, total: nuevoTotal, idProveedor: idProveedor }
         );
     } catch (error) {
         msg = error.message;
