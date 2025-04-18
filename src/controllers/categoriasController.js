@@ -1,9 +1,20 @@
 const Categoria = require ('../models/categorias')
+const Repuestos = require('../models/repuestos')
 
 const getCategoria = async (req, res) => {
     const categorias = await Categoria.find()
     res.json({categorias})
 }
+
+const getCategoriasActivas = async (req, res) => {
+    try {
+        const categoriasActivas = await Categoria.find({ estado: "Activo" }); // 🔥 Solo categorías disponibles
+        res.status(200).json({ categorias: categoriasActivas });
+    } catch (error) {
+        console.error("Error al obtener categorías activas:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
 
 const getOneCategoria = async(req, res) => {
     const {id} = req.params
@@ -57,16 +68,6 @@ const cambiarEstadoCategoria = async (req, res) => {
             return res.status(404).json({ msg: 'Categoría no encontrada' });
         }
 
-        // Verificar si tiene repuestos antes de inactivarla
-        if (categoria.estado === 'Activo') {
-            const repuestosRelacionados = await Repuestos.find({ idCategoria: id });
-            if (repuestosRelacionados.length > 0) {
-                return res.status(400).json({ 
-                    msg: 'No se puede marcar como inactiva porque está asociada a repuestos' 
-                });
-            }
-        }
-
         // Cambiar entre "Activo" e "Inactivo"
         categoria.estado = categoria.estado === 'Activo' ? 'Inactivo' : 'Activo';
         await categoria.save();
@@ -84,6 +85,7 @@ const cambiarEstadoCategoria = async (req, res) => {
 module.exports = {
     getCategoria,
     getOneCategoria,
+    getCategoriasActivas,
     putCategoria,
     postCategoria,
     deleteCategoria,

@@ -43,6 +43,27 @@ const getRepuestosPorCategoria = async (req, res) => {
     }
 };
 
+const getRepuestosActivosPorCategoria = async (req, res) => {
+    try {
+        const { categoriaId } = req.params;
+
+        const repuestosFiltrados = await Repuesto.find({ idCategoria: categoriaId, estado: "Activo" })
+            .populate({
+                path: "idCategoria",
+                match: { estado: "Activo" } // 🔥 Solo categorías activas
+            })
+            .populate("idMarca");
+
+        // 🔥 Filtrar manualmente los repuestos de categorías inactivas (por si `match` no excluye correctamente)
+        const repuestosActivos = repuestosFiltrados.filter(repuesto => repuesto.idCategoria !== null);
+
+        res.status(200).json({ repuestos: repuestosActivos });
+    } catch (error) {
+        console.error("Error al obtener repuestos activos por categoría:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
+
 const getOneRepuesto = async(req, res) => {
     const {id} = req.params
     const repuesto = await Repuesto.findById(id)
@@ -154,5 +175,6 @@ module.exports = {
     putRepuesto,
     postRepuesto,
     deleteRepuesto,
-    cambiarEstadoRepuesto
+    cambiarEstadoRepuesto,
+    getRepuestosActivosPorCategoria
 }

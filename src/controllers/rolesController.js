@@ -2,6 +2,7 @@ const Roles = require('../models/roles'); // Modelo de Roles
 const Permisos = require('../models/permisos'); // Modelo de Permisos
 const RolesPermisos = require('../models/rolesPermisos'); // Modelo de la relación Roles-Permisos
 const Usuarios = require('../models/usuarios')
+const mongoose = require("mongoose");
 
 // Crear un nuevo rol con permisos
 const crearRol = async (req, res) => {
@@ -79,6 +80,16 @@ const getOneRol = async (req, res) => {
     } catch (error) {
         console.error('Error al obtener el rol:', error);
         res.status(500).json({ error: 'Error al obtener el rol.' });
+    }
+};
+
+const getRolesActivos = async (req, res) => {
+    try {
+        const rolesActivos = await Roles.find({ estado: "Activo" }); // 🔥 Solo roles disponibles
+        res.status(200).json({ roles: rolesActivos });
+    } catch (error) {
+        console.error("Error al obtener roles activos:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
     }
 };
 
@@ -171,6 +182,16 @@ const cambiarEstadoRol = async (req, res) => {
             return res.status(404).json({ msg: 'Rol no encontrado' });
         }
 
+        if (rol.estado === 'Activo') {
+            const usuariosRelacionados = await Usuarios.find({ rol: new mongoose.Types.ObjectId(id) });
+            console.log("📌 Usuarios con este rol:", usuariosRelacionados);
+            if (usuariosRelacionados.length > 0) {
+                return res.status(400).json({ 
+                    msg: 'No se puede marcar como inactiva porque está asociada a un usuario' 
+                });
+            }
+        }
+
         // Cambiar entre "Activo" e "Inactivo"
         rol.estado = rol.estado === 'Activo' ? 'Inactivo' : 'Activo';
         await rol.save();
@@ -190,5 +211,6 @@ module.exports = {
     getOneRol,
     putRol,
     deleteRol,
-    cambiarEstadoRol
+    cambiarEstadoRol,
+    getRolesActivos
 };
