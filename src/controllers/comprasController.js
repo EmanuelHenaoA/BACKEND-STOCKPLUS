@@ -15,7 +15,7 @@ const getCompra = async (req, res) => {
 
 const getOneCompra = async(req, res) => {
     const {id} = req.params
-    const compra = await Compra.findById(id)
+    const compra = await Compras.findById(id)
     res.json(compra)
 }
 
@@ -29,6 +29,13 @@ const putCompra = async (req, res) => {
         const compraActual = await Compras.findById(idCompra);
         if (!compraActual) {
             return res.status(404).json({ msg: 'Compra no encontrada' });
+        }
+
+          // No permitir editar compras canceladas
+          if (compraActual.estado === 'Cancelada') {
+            return res.status(400).json({ 
+                msg: "No se puede editar una Compra cancelada. Cambie el estado a Completada primero." 
+            });
         }
 
         // Revertir los cambios en existencias de los repuestos de la compra actual
@@ -70,11 +77,16 @@ const putCompra = async (req, res) => {
 
 
 const postCompra = async (req, res) => {
-    const { repuestos, idProveedor } = req.body;
+    const { repuestos, idProveedor, estado = 'Completada' } = req.body;
     let total = 0;
     let msg = 'Compra Agregada';
 
     try {
+        // Verificar que el estado sea válido
+        if (estado !== 'Cancelada' && estado !== 'Completada') {
+            return res.status(400).json({ msg: "Estado no válido. Debe ser 'Cancelada' o 'Completada'" });
+        }
+
         // Verificar que el proveedor exista (opcional, pero recomendable)
         const proveedor = await Proveedores.findById(idProveedor);
         if (!proveedor) {
@@ -99,17 +111,20 @@ const postCompra = async (req, res) => {
         const compra = new Compras({
             ...req.body,
             repuestos,
-            total // Añadir el total calculado
+            total, // Añadir el total calculado
+            estado
         });
 
         await compra.save();
 
-        // Actualizar las existencias de los repuestos en la base de datos
-        for (let item of repuestos) {
-            await Repuestos.findByIdAndUpdate(item.idRepuesto, {
-                $inc: { existencias: item.cantidad }
-            });
-        }
+            // Actualizar las existencias solo si el estado es "Completada"
+            if (estado === 'Completada') {
+                for (let item of repuestos) {
+                    await Repuestos.findByIdAndUpdate(item.idRepuesto, {
+                        $inc: { existencias: item.cantidad } // Sumar repuestos al inventario
+                    });
+                }
+            }
     } catch (error) {
         msg = error.message;
         return res.status(500).json({ msg });
@@ -148,10 +163,72 @@ const deleteCompra = async (req, res) => {
     res.json({ msg });
 };
 
+const cambiarEstadoCompra = async (req, res) => {
+    const { id } = req.params;
+    let msg = "Estado de compra actualizado";
+
+    try {
+        // Obtener la compra actual
+        const compra = await Compras.findById(id);
+        if (!compra) {
+            return res.status(404).json({ msg: "Compra no encontrada" });
+        }
+
+        // Determinar el nuevo estado (alternar entre Completada y Cancelada)
+        const nuevoEstado = compra.estado === 'Completada' ? 'Cancelada' : 'Completada';
+
+        // Si cambiamos de Completada a Cancelada, restamos los repuestos del inventario
+        if (nuevoEstado === 'Cancelada') {
+            for (const item of compra.repuestos) {
+                const repuesto = await Repuestos.findById(item.idRepuesto);
+                if (!repuesto) {
+                    return res.status(404).json({ msg: `Repuesto con id ${item.idRepuesto} no encontrado` });
+                }
+
+                // Verificar que no queden existencias negativas
+                if (repuesto.existencias < item.cantidad) {
+                    return res.status(400).json({ 
+                        msg: `No se puede cancelar la compra porque ya se han vendido algunos repuestos. Repuesto: ${repuesto.nombre}, Disponible: ${repuesto.existencias}, A restar: ${item.cantidad}` 
+                    });
+                }
+
+                // Restar los repuestos del inventario (cancelar la adición)
+                await Repuestos.findByIdAndUpdate(item.idRepuesto, {
+                    $inc: { existencias: -item.cantidad }
+                });
+            }
+        } 
+        // Si cambiamos de Cancelada a Completada, sumamos los repuestos al inventario
+        else {
+            for (const item of compra.repuestos) {
+                // Sumar los repuestos al inventario
+                await Repuestos.findByIdAndUpdate(item.idRepuesto, {
+                    $inc: { existencias: item.cantidad }
+                });
+            }
+        }
+
+        // Actualizar el estado de la compra
+        compra.estado = nuevoEstado;
+        await compra.save();
+
+        res.json({ 
+            msg: `Estado de la compra cambiado exitosamente a ${nuevoEstado}`,
+            compra 
+        });
+
+    } catch (error) {
+        console.error("Error al cambiar estado de compra:", error);
+        msg = error.message;
+        return res.status(500).json({ msg });
+    }
+};
+
 module.exports = {
     getCompra,
     getOneCompra,
     putCompra,
     postCompra,
-    deleteCompra
+    deleteCompra,
+    cambiarEstadoCompra
 }

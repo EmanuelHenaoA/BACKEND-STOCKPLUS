@@ -21,7 +21,7 @@ const registrarUsuario = async(req, res) => {
             })
         }
 
-        const {nombre, telefono, direccion, email, contraseña, rol } = req.body
+        const {nombre, telefono, direccion, email, contraseña, rol, estado = 'Activo' } = req.body
 
         const usuarioExiste = await Usuario.findOne({ email })
         if(usuarioExiste){
@@ -31,6 +31,14 @@ const registrarUsuario = async(req, res) => {
             })
         }
 
+         // Validar que el estado sea válido
+         if (estado !== 'Activo' && estado !== 'Inactivo') {
+            return res.status(400).json({
+                success: false,
+                msg: 'Estado no válido. Debe ser "Activo" o "Inactivo"'
+            });
+        }
+
         const hashContraseña = await bcrypt.hash(contraseña, 10)
         const usuario = new Usuario({
             nombre, 
@@ -38,7 +46,8 @@ const registrarUsuario = async(req, res) => {
             direccion, 
             email, 
             contraseña: hashContraseña,
-            rol
+            rol, 
+            estado
         })
 
         const usuarioData = await usuario.save()
@@ -85,6 +94,14 @@ const loginUsuario = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 msg: 'El email o la contraseña son incorrectos'
+            })
+        }
+
+         // Verificar si el usuario está activo
+         if(usuarioData.estado === 'Inactivo') {
+            return res.status(403).json({
+                success: false,
+                msg: 'Tu cuenta está inactiva. Por favor contacta al administrador.'
             })
         }
         

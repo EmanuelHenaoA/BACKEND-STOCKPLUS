@@ -19,7 +19,7 @@ const getOneUsuario = async(req, res) => {
 }
 
 const putUsuario = async (req, res) => {
-    const { nombre, telefono, direccion, email, rol, contraseña } = req.body;
+    const { nombre, telefono, direccion, email, rol, contraseña, estado } = req.body;
     const idUsuario = req.params.id;
 
     let msg = "Usuario actualizado";
@@ -34,7 +34,7 @@ const putUsuario = async (req, res) => {
 
         const usuarioActualizado = await Usuario.findByIdAndUpdate(
             idUsuario,
-            { nombre, telefono, direccion, email, rol, contraseña: nuevaContraseña },
+            { nombre, telefono, direccion, email, rol, contraseña: nuevaContraseña, estado },
             { new: true }
         );
 
@@ -72,10 +72,34 @@ const deleteUsuario = async (req, res) => {
     res.json({msg:msg})
 }
 
+const cambiarEstadoUsuario = async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        const usuario = await Usuario.findById(id);
+        if (!usuario) {
+            return res.status(404).json({ success: false, msg: 'Usuario no encontrado' });
+        }
+        
+        // Cambiar entre "Activo" e "Inactivo"
+        usuario.estado = usuario.estado === 'Activo' ? 'Inactivo' : 'Activo';
+        await usuario.save();
+        
+        res.json({
+            success: true,
+            msg: `Estado del usuario cambiado exitosamente a ${usuario.estado}`,
+            usuario
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, msg: error.message });
+    }
+};
+
 module.exports = {
     getUsuario,
     getOneUsuario,
     putUsuario,
     postUsuario,
-    deleteUsuario
+    deleteUsuario,
+    cambiarEstadoUsuario
 }

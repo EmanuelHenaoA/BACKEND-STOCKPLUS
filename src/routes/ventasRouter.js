@@ -1,6 +1,6 @@
 const {Router} = require ('express')
 
-const {obtenerVenta, obtenerUnaVenta, crearVenta, actualizarVenta, eliminarVenta} = require ('../controllers/ventasController')
+const {obtenerVenta, obtenerUnaVenta, crearVenta, actualizarVenta, eliminarVenta, cambiarEstadoVenta} = require ('../controllers/ventasController')
 
 const {validarVenta, validarVentaId, validarPutVenta} = require('../middlewares/ventasMiddleware')
 
@@ -16,5 +16,7 @@ ventasRouter.get('/:id', autenticarUsuario, verificarPermiso('verVenta'), valida
 ventasRouter.post('/', autenticarUsuario, verificarPermiso('crearVenta'), validarVenta, manejarErroresValidacion, crearVenta)
 ventasRouter.put('/', autenticarUsuario, verificarPermiso('editarVenta'), validarPutVenta, manejarErroresValidacion, actualizarVenta)
 ventasRouter.delete('/:id', autenticarUsuario, verificarPermiso('eliminarVenta'), validarVentaId, manejarErroresValidacion, eliminarVenta)
+ventasRouter.patch('/:id', autenticarUsuario, verificarPermiso('estadoVenta'), validarVentaId, manejarErroresValidacion, cambiarEstadoVenta)
+
 
 module.exports = ventasRouter

@@ -1,5 +1,5 @@
 const {Router} = require ('express')
-const {getUsuario, getOneUsuario, putUsuario, postUsuario, deleteUsuario} = require ('../controllers/usuariosController')
+const {getUsuario, getOneUsuario, putUsuario, postUsuario, deleteUsuario, cambiarEstadoUsuario} = require ('../controllers/usuariosController')
 
 const verificarPermiso = require('../middlewares/permisosMiddleware')
 
@@ -14,6 +14,8 @@ usuariosRouter.get('/:id',autenticarUsuario, verificarPermiso('verUsuario'), usu
 usuariosRouter.post('/', autenticarUsuario, verificarPermiso('crearUsuario'), usuariosValidacion, manejarErroresValidacion, postUsuario)
 usuariosRouter.put('/:id',autenticarUsuario, verificarPermiso('editarUsuario'), actualizarUsuarioValidacion,putUsuario)
 usuariosRouter.delete('/:id',autenticarUsuario, verificarPermiso('eliminarUsuario'), usuarioValidacionId, deleteUsuario)
+usuariosRouter.patch('/:id',autenticarUsuario, verificarPermiso('estadoUsuario'), usuarioValidacionId, cambiarEstadoUsuario)
+
 
 module.exports = usuariosRouter
 

@@ -27,11 +27,17 @@ const usuariosSchema = new mongoose.Schema (
             required: [true, 'La contraseña es obligatoria'],
             trim: true,
         },
+        estado: {
+            type: String,
+            enum: ['Activo', 'Inactivo'],
+            default: 'Activo' // Estado por defecto
+        },
         rol: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Roles",
             required: [true, 'El rol es obligatorio'],
         },
+        
         resetPasswordToken: String,
         resetPasswordExpires: Date
     },

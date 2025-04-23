@@ -34,6 +34,11 @@ const comprasSchema = new mongoose.Schema (
             required: true,
             min: 0
         },
+        estado: {
+            type: String,
+            enum: ['Completada', 'Cancelada'], // Solo permite estos dos valores
+            default: 'Completada' // Estado por defecto
+        }
     },
     {
         timestamps: true,
