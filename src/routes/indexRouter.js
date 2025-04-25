@@ -9,10 +9,13 @@ const comprasRouter = require('./comprasRouter');
 const permisosRouter = require('./permisosRouter');
 const rolesPermisosRouter = require('./rolesPermisosRouter');
 const clientesRouter = require ('./clientesRouter')
-const ventasRouter = require ('./ventasRouter')
+const ventasRouter = require ('./ventasRouter');
+const dashboardRouter = require('./dashboardRouter');
+
 
 const routes = (app) => { 
     app.use('/auth', authRouter); 
+    app.use('/dashboard', dashboardRouter)
     app.use('/roles', rolesRouter);
     app.use('/permisos', permisosRouter);
     app.use('/roles-permisos', rolesPermisosRouter);
