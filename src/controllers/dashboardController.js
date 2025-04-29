@@ -2,6 +2,7 @@
 const Venta = require('../models/ventas');
 const Repuesto = require('../models/repuestos');
 const Cliente = require('../models/clientes');
+const clientes = require('../models/clientes');
 
 // Obtener ventas semanales
 exports.getVentasSemanales = async (req, res) => {
@@ -277,12 +278,12 @@ exports.getEstadisticasGenerales = async (req, res) => {
     const totalRepuestos = await Repuesto.countDocuments({ estado: "Activo" });
     
     // Total de clientes
-    const totalClientes = await Cliente.countDocuments({ estado: "Activo" });
+    const totalClientes = await Cliente.countDocuments(clientes.nombre);
     
     // Repuestos con stock bajo
     const repuestosStockBajo = await Repuesto.countDocuments({
       estado: "Activo",
-      existencias: { $lt: 10 } // Definir umbral según necesidades
+      existencias: { $lt: 8 } // Definir umbral según necesidades
     });
     
     res.status(200).json({

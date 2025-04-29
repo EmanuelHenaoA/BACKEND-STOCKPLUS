@@ -9,12 +9,12 @@ const autenticarUsuario = require('../middlewares/jwtMiddleware')
 
 // Rutas del dashboard
 const dashboardRouter = Router()
-dashboardRouter.get('/ventas-semanales',autenticarUsuario, verificarPermiso('verVenta'), dashboardController.getVentasSemanales);
-dashboardRouter.get('/top-clientes', autenticarUsuario, verificarPermiso('verCliente'), dashboardController.getTopClientes);
-dashboardRouter.get('/repuestos-mas-vendidos', autenticarUsuario, verificarPermiso('verRepuesto'), dashboardController.getRepuestosMasVendidos);
-dashboardRouter.get('/repuestos-mayor-ingreso', autenticarUsuario, verificarPermiso('verRepuesto'), dashboardController.getRepuestosMayorIngreso);
+dashboardRouter.get('/ventas-semanales',autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getVentasSemanales);
+dashboardRouter.get('/top-clientes', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getTopClientes);
+dashboardRouter.get('/repuestos-mas-vendidos', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getRepuestosMasVendidos);
+dashboardRouter.get('/repuestos-mayor-ingreso', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getRepuestosMayorIngreso);
 dashboardRouter.get('/estadisticas-generales', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getEstadisticasGenerales);
-dashboardRouter.get('/ventas-por-categoria', autenticarUsuario, verificarPermiso('verVenta'), dashboardController.getVentasPorCategoria);
-dashboardRouter.get('/ventas-por-mes', autenticarUsuario, verificarPermiso('verVenta'), dashboardController.getVentasPorMes);
+dashboardRouter.get('/ventas-por-categoria', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getVentasPorCategoria);
+dashboardRouter.get('/ventas-por-mes', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getVentasPorMes);
 
 module.exports = dashboardRouter;
