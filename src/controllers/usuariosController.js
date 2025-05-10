@@ -19,7 +19,7 @@ const getOneUsuario = async(req, res) => {
 }
 
 const putUsuario = async (req, res) => {
-    const { nombre, telefono, direccion, email, rol, contraseña, estado } = req.body;
+    const { nombre, documento, telefono, direccion, email, rol, contraseña, estado } = req.body;
     const idUsuario = req.params.id;
 
     let msg = "Usuario actualizado";
@@ -34,7 +34,7 @@ const putUsuario = async (req, res) => {
 
         const usuarioActualizado = await Usuario.findByIdAndUpdate(
             idUsuario,
-            { nombre, telefono, direccion, email, rol, contraseña: nuevaContraseña, estado },
+            { nombre, documento, telefono, direccion, email, rol, contraseña: nuevaContraseña, estado },
             { new: true }
         );
 

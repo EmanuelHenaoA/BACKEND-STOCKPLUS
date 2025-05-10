@@ -183,37 +183,21 @@ const cambiarEstadoVenta = async (req, res) => {
             return res.status(404).json({ msg: "Venta no encontrada" });
         }
 
-        // Determinar el nuevo estado (alternar entre Completada y Cancelada)
-        const nuevoEstado = venta.estado === 'Completada' ? 'Cancelada' : 'Completada';
+        // No permitir cambiar el estado si ya está cancelada
+        if (venta.estado === 'Cancelada') {
+            return res.status(400).json({ 
+                msg: "No se puede cambiar el estado de una venta cancelada" 
+            });
+        }
 
-        // Si cambiamos de Completada a Cancelada, devolvemos los repuestos al inventario
-        if (nuevoEstado === 'Cancelada') {
-            for (const item of venta.repuestos) {
-                await Repuestos.findByIdAndUpdate(item.idRepuesto, {
-                    $inc: { existencias: item.cantidad } // Devolver los repuestos al inventario
-                });
-            }
-        } 
-        // Si cambiamos de Cancelada a Completada, restamos los repuestos del inventario
-        else {
-            for (const item of venta.repuestos) {
-                const repuesto = await Repuestos.findById(item.idRepuesto);
-                if (!repuesto) {
-                    return res.status(404).json({ msg: `Repuesto con id ${item.idRepuesto} no encontrado` });
-                }
+        // A este punto, solo permitimos cambiar de Completada a Cancelada
+        const nuevoEstado = 'Cancelada';
 
-                // Verificar si hay suficientes existencias
-                if (repuesto.existencias < item.cantidad) {
-                    return res.status(400).json({ 
-                        msg: `No hay suficientes existencias del repuesto ${repuesto.nombre}. Disponible: ${repuesto.existencias}, Requerido: ${item.cantidad}` 
-                    });
-                }
-
-                // Actualizar existencias
-                await Repuestos.findByIdAndUpdate(item.idRepuesto, {
-                    $inc: { existencias: -item.cantidad } // Restar repuestos del inventario
-                });
-            }
+        // Devolver los repuestos al inventario al cancelar
+        for (const item of venta.repuestos) {
+            await Repuestos.findByIdAndUpdate(item.idRepuesto, {
+                $inc: { existencias: item.cantidad } // Devolver los repuestos al inventario
+            });
         }
 
         // Actualizar el estado de la venta

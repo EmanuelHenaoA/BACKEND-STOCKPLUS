@@ -7,6 +7,11 @@ const usuariosSchema = new mongoose.Schema (
             unique: true,
             required: [true, 'El nombre es obligatorio'],
         },
+        documento: {
+            type: Number,
+            required: [true, 'El numero de documento es obligatorio'],
+            trim: true,
+        },
         telefono: {
             type: Number,
             required: [true, 'El numero de celular es obligatorio'],
