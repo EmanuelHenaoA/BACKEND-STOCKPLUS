@@ -16,5 +16,6 @@ dashboardRouter.get('/repuestos-mayor-ingreso', autenticarUsuario, verificarPerm
 dashboardRouter.get('/estadisticas-generales', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getEstadisticasGenerales);
 dashboardRouter.get('/ventas-por-categoria', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getVentasPorCategoria);
 dashboardRouter.get('/ventas-por-mes', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getVentasPorMes);
+dashboardRouter.get('/repuestos-stock-bajo', autenticarUsuario, verificarPermiso('verEstadisticas'), dashboardController.getRepuestosStockBajo)
 
 module.exports = dashboardRouter;

@@ -152,10 +152,19 @@ const putRol = async (req, res) => {
 };
 
 // Eliminar un rol
+// Eliminar un rol
 const deleteRol = async (req, res) => {
     const { id } = req.params;
 
     try {
+        // Verificar si existen usuarios con este rol
+        const usuariosRelacionados = await Usuarios.find({ rol: new mongoose.Types.ObjectId(id) });
+        if (usuariosRelacionados.length > 0) {
+            return res.status(400).json({ 
+                error: 'No se puede eliminar el rol porque está asociado a uno o más usuarios.' 
+            });
+        }
+
         // Eliminar el rol
         const rolEliminado = await Roles.findByIdAndDelete(id);
         if (!rolEliminado) {

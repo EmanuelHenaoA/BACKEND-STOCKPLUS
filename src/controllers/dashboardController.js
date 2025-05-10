@@ -84,7 +84,7 @@ exports.getTopClientes = async (req, res) => {
       },
       { $unwind: "$clienteInfo" },
       { $sort: { montoTotal: -1 } },
-      { $limit: 10 },
+      { $limit: 5 },
       {
         $project: {
           _id: 0,
@@ -134,7 +134,7 @@ exports.getRepuestosMasVendidos = async (req, res) => {
       },
       { $unwind: "$repuestoInfo" },
       { $sort: { totalVendido: -1 } },
-      { $limit: 10 },
+      { $limit: 5 },
       {
         $lookup: {
           from: "categorias",
@@ -203,7 +203,7 @@ exports.getRepuestosMayorIngreso = async (req, res) => {
       },
       { $unwind: "$repuestoInfo" },
       { $sort: { totalIngreso: -1 } },
-      { $limit: 10 },
+      { $limit: 5 },
       {
         $lookup: {
           from: "categorias",
@@ -238,6 +238,39 @@ exports.getRepuestosMayorIngreso = async (req, res) => {
     res.status(200).json({
       success: true,
       data: repuestosMayorIngreso
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
+  }
+};
+
+// En dashboardController.js
+exports.getRepuestosStockBajo = async (req, res) => {
+  try {
+    const repuestosStockBajo = await Repuesto.find({
+      estado: "Activo",
+      existencias: { $lt: 10 } // o cualquier lógica para definir "stock bajo"
+    })
+    .populate('idCategoria', 'nombre')
+    .populate('idMarca', 'nombre')
+    .select('nombre existencias stockMinimo')
+    .lean();
+    
+    const formattedData = repuestosStockBajo.map(item => ({
+      id: item._id,
+      nombre: item.nombre,
+      categoria: item.idCategoria ? item.idCategoria.nombre : 'Sin categoría',
+      marca: item.idMarca ? item.idMarca.nombre : 'Sin marca',
+      existencias: item.existencias,
+      stockMinimo: item.stockMinimo || 5 // valor por defecto si no existe
+    }));
+    
+    res.status(200).json({
+      success: true,
+      data: formattedData
     });
   } catch (error) {
     res.status(500).json({ 
@@ -283,7 +316,7 @@ exports.getEstadisticasGenerales = async (req, res) => {
     // Repuestos con stock bajo
     const repuestosStockBajo = await Repuesto.countDocuments({
       estado: "Activo",
-      existencias: { $lt: 8 } // Definir umbral según necesidades
+      existencias: { $lt: 10 } // Definir umbral según necesidades
     });
     
     res.status(200).json({
