@@ -21,7 +21,7 @@ const registrarUsuario = async(req, res) => {
             })
         }
 
-        const {nombre, telefono, direccion, email, contraseña, rol, estado = 'Activo' } = req.body
+        const {nombre, documento, telefono, direccion, email, contraseña, rol, estado = 'Activo' } = req.body
 
         const usuarioExiste = await Usuario.findOne({ email })
         if(usuarioExiste){
@@ -42,6 +42,7 @@ const registrarUsuario = async(req, res) => {
         const hashContraseña = await bcrypt.hash(contraseña, 10)
         const usuario = new Usuario({
             nombre, 
+            documento,
             telefono,
             direccion, 
             email, 
