@@ -38,6 +38,21 @@ const actualizarVenta = async (req, res) => {
             });
         }
 
+           // Verificar si algún repuesto está inactivo
+        for (const item of repuestos) {
+            const repuesto = await Repuestos.findById(item.idRepuesto);
+            if (!repuesto) {
+                return res.status(404).json({ msg: `Repuesto con id ${item.idRepuesto} no encontrado` });
+            }
+            
+            // Verificación de estado del repuesto
+            if (repuesto.estado === 'Inactivo') {
+                return res.status(400).json({ 
+                    msg: `No se puede editar la venta porque el repuesto ${repuesto.nombre} está inactivo.` 
+                });
+            }
+        }
+
         // Procesar los nuevos repuestos y calcular el nuevo total
         for (const item of repuestos) {
             const repuesto = await Repuestos.findById(item.idRepuesto);

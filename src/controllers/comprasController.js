@@ -38,6 +38,20 @@ const putCompra = async (req, res) => {
             });
         }
 
+         for (const item of repuestos) {
+            const repuesto = await Repuestos.findById(item.idRepuesto);
+            if (!repuesto) {
+                return res.status(404).json({ msg: `Repuesto con id ${item.idRepuesto} no encontrado` });
+            }
+            
+            // Verificación de estado del repuesto
+            if (repuesto.estado === 'Inactivo') {
+                return res.status(400).json({ 
+                    msg: `No se puede editar la compra porque el repuesto ${repuesto.nombre} está inactivo.` 
+                });
+            }
+        }
+
         // Revertir los cambios en existencias de los repuestos de la compra actual
         for (const item of compraActual.repuestos) {
             await Repuestos.findByIdAndUpdate(item.idRepuesto, {
@@ -174,38 +188,34 @@ const cambiarEstadoCompra = async (req, res) => {
             return res.status(404).json({ msg: "Compra no encontrada" });
         }
 
-        // Determinar el nuevo estado (alternar entre Completada y Cancelada)
-        const nuevoEstado = compra.estado === 'Completada' ? 'Cancelada' : 'Completada';
+        // No permitir cambiar el estado si ya está cancelada
+        if (compra.estado === 'Cancelada') {
+            return res.status(400).json({ 
+                msg: "No se puede cambiar el estado de una compra cancelada" 
+            });
+        }
 
-        // Si cambiamos de Completada a Cancelada, restamos los repuestos del inventario
-        if (nuevoEstado === 'Cancelada') {
-            for (const item of compra.repuestos) {
-                const repuesto = await Repuestos.findById(item.idRepuesto);
-                if (!repuesto) {
-                    return res.status(404).json({ msg: `Repuesto con id ${item.idRepuesto} no encontrado` });
-                }
+        // A este punto, solo permitimos cambiar de Completada a Cancelada
+        const nuevoEstado = 'Cancelada';
 
-                // Verificar que no queden existencias negativas
-                if (repuesto.existencias < item.cantidad) {
-                    return res.status(400).json({ 
-                        msg: `No se puede cancelar la compra porque ya se han vendido algunos repuestos. Repuesto: ${repuesto.nombre}, Disponible: ${repuesto.existencias}, A restar: ${item.cantidad}` 
-                    });
-                }
+        // Verificar que no queden existencias negativas al cancelar
+        for (const item of compra.repuestos) {
+            const repuesto = await Repuestos.findById(item.idRepuesto);
+            if (!repuesto) {
+                return res.status(404).json({ msg: `Repuesto con id ${item.idRepuesto} no encontrado` });
+            }
 
-                // Restar los repuestos del inventario (cancelar la adición)
-                await Repuestos.findByIdAndUpdate(item.idRepuesto, {
-                    $inc: { existencias: -item.cantidad }
+            // Verificar que no queden existencias negativas
+            if (repuesto.existencias < item.cantidad) {
+                return res.status(400).json({ 
+                    msg: `No se puede cancelar la compra porque ya se han vendido algunos repuestos. Repuesto: ${repuesto.nombre}, Disponible: ${repuesto.existencias}, A restar: ${item.cantidad}` 
                 });
             }
-        } 
-        // Si cambiamos de Cancelada a Completada, sumamos los repuestos al inventario
-        else {
-            for (const item of compra.repuestos) {
-                // Sumar los repuestos al inventario
-                await Repuestos.findByIdAndUpdate(item.idRepuesto, {
-                    $inc: { existencias: item.cantidad }
-                });
-            }
+
+            // Restar los repuestos del inventario (cancelar la adición)
+            await Repuestos.findByIdAndUpdate(item.idRepuesto, {
+                $inc: { existencias: -item.cantidad }
+            });
         }
 
         // Actualizar el estado de la compra
