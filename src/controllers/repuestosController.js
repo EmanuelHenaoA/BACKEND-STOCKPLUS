@@ -73,7 +73,7 @@ const getOneRepuesto = async(req, res) => {
 
 const putRepuesto = async (req, res) => {
     const { id } = req.params;
-    const { idRepuesto, nombre, existencias, precio, precioVenta, idCategoria, idMarca, estado} = req.body;
+    const { nombre, existencias, precio, precioVenta, idCategoria, idMarca, estado} = req.body;
     let msg = 'Repuesto actualizado';
 
     try {
@@ -86,10 +86,19 @@ const putRepuesto = async (req, res) => {
             return res.status(400).json({ msg: 'No se puede utilizar una Categoria inactiva para este repuesto' });
         }
 
+        // Validar que la marca asociada esté activa
+        const marca = await Marcas.findById(idMarca);
+        if (!marca) {
+            return res.status(404).json({ msg: 'Marca no encontrada' });
+        }
+        if (marca.estado !== 'Activo') {
+            return res.status(400).json({ msg: 'No se puede utilizar una marca inactiva para este repuesto' });
+        }
+
         // Actualizar el repuesto si la marca es válida
         await Repuesto.findByIdAndUpdate(
             id,
-            { idRepuesto: idRepuesto, nombre: nombre, existencias: existencias, precio: precio, precioVenta: precioVenta, idCategoria: idCategoria, idMarca: idMarca, estado: estado }
+            {nombre: nombre, existencias: existencias, precio: precio, precioVenta: precioVenta, idCategoria: idCategoria, idMarca: idMarca, estado: estado }
         );
     } catch (error) {
         msg = error.message;

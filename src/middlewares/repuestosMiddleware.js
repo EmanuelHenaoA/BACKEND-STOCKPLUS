@@ -1,7 +1,6 @@
 const {check} = require('express-validator')
 
 const validarRepuesto = [
-    check('idRepuesto', 'El id del repuesto es obligatorio').not().isEmpty(),
     check('nombre', 'El nombre del repuesto es obligatorio').not().isEmpty().isString(),
     check('existencias').isInt({ min: 0 }).withMessage('El numero minimo de existencias es 0'),
     check('precio').isFloat({min: 0 }).withMessage('El precio del respuesto es minimo 0'),

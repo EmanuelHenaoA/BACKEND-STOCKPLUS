@@ -1,12 +1,8 @@
 const mongoose = require('mongoose')
+const AutoIncrement = require('mongoose-sequence')(mongoose)
 
 const repuestosSchema = new mongoose.Schema (
     {
-        idRepuesto: {
-            type: Number,
-            unique: true,
-            required: [true, 'El id es obligatorio'],
-        },
         nombre: {
             type: String,
             unique: true,
@@ -52,5 +48,11 @@ const repuestosSchema = new mongoose.Schema (
         versionKey: false
     }
 )
+
+// Aplicar auto-increment
+repuestosSchema.plugin(AutoIncrement, {
+    inc_field: 'idRepuesto',
+    start_seq: 1
+})
 
 module.exports = mongoose.model('Repuestos', repuestosSchema)
