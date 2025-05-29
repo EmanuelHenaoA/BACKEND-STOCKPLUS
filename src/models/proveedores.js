@@ -16,7 +16,12 @@ const proveedoresSchema = new mongoose.Schema (
             unique: true,
             required: [true, 'El email es obligatorio'],
             trim: true
-        }
+        },
+        estado: {
+            type: String,
+            enum: ['Activo', 'Inactivo'],
+            default: 'Activo' // Estado por defecto
+        },
     },
     {
         timestamps: true,

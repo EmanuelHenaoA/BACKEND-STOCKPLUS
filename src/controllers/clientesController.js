@@ -12,11 +12,11 @@ const getOneCliente = async(req, res) => {
 }
 
 const putCliente = async (req, res) => {
-    const {nombre, telefono, email} = req.body
+    const {documento, nombre, telefono, email} = req.body
     const idCliente = req.params.id
     let msg = 'Cliente actualizado'
     try{
-        await Cliente.findByIdAndUpdate(idCliente, {nombre: nombre, telefono: telefono, email: email})
+        await Cliente.findByIdAndUpdate(idCliente, {documento: documento, nombre: nombre, telefono: telefono, email: email})
     }catch(error){
         msg = error
     }

@@ -11,13 +11,23 @@ const getOneProveedor = async(req, res) => {
     res.json(proveedor)
 }
 
+const getProveedoresActivos = async (req, res) => {
+    try {
+        const proveedoresActivos = await Proveedor.find({ estado: "Activo" }); // 🔥 Solo categorías disponibles
+        res.status(200).json({ proveedores: proveedoresActivos });
+    } catch (error) {
+        console.error("Error al obtener proveedores activos:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+};
+
 const putProveedor = async (req, res) => {
-    const {nombre, telefono, email} = req.body
+    const {nombre, telefono, email, estado} = req.body
     const idProveedor = req.params.id; // 🔎 Tomar el ID desde la URL
 
     let msg = 'Proveedor actualizado'
     try{
-        await Proveedor.findByIdAndUpdate(idProveedor, {nombre: nombre, telefono: telefono, email: email},  { new: true, runValidators: true })
+        await Proveedor.findByIdAndUpdate(idProveedor, {nombre: nombre, telefono: telefono, email: email, estado: estado},  { new: true, runValidators: true })
     }catch(error){
         msg = error
     }
@@ -47,10 +57,34 @@ const deleteProveedor = async (req, res) => {
     res.json({msg:msg})
 }
 
+const cambiarEstadoProveedor = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const proveedor = await Proveedor.findById(id);
+        if (!proveedor) {
+            return res.status(404).json({ msg: 'Proveedor no encontrado' });
+        }
+
+        // Cambiar entre "Activo" e "Inactivo"
+        proveedor.estado = proveedor.estado === 'Activo' ? 'Inactivo' : 'Activo';
+        await proveedor.save();
+
+        res.json({ 
+            msg: `Estado del proveedor cambiado exitosamente a ${proveedor.estado}`, 
+            proveedor 
+        });
+    } catch (error) {
+        res.status(500).json({ msg: error.message });
+    }
+};
+
 module.exports = {
     getProveedor,
     getOneProveedor,
+    getProveedoresActivos,
     putProveedor,
     postProveedor,
-    deleteProveedor
+    deleteProveedor, 
+    cambiarEstadoProveedor
 }

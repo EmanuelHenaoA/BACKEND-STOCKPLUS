@@ -2,6 +2,9 @@ const { check } = require('express-validator')
 
 exports.clientesValidacion = [
     check('nombre', 'El nombre del cliente es obligatorio').not().isEmpty().isString(),
+    check('documento', 'El número de documento es obligatorio').not().isEmpty().isNumeric(),
+    check('documento').isLength({ min: 8 }).withMessage('El numero de documento debe contener minimo 8 caracteres'),
+    check('documento').isLength({ max: 10 }).withMessage('El numero de documento debe contener maximo 10 caracteres'),
     check('telefono', 'El número teléfono es obligatorio').not().isEmpty().isNumeric(),
     check('telefono').isLength({ min: 7 }).withMessage('El numero telefonico debe contener minimo 7 caracteres'),
     check('telefono').isLength({ max: 10 }).withMessage('El numero telefonico debe contener maximo 10 caracteres'),
