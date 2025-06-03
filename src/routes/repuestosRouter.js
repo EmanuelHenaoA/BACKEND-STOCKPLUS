@@ -12,6 +12,7 @@ const manejarErroresValidacion = require('../middlewares/erroresMiddleware');
 const repuestosRouter = Router()
 repuestosRouter.get('/', autenticarUsuario, verificarPermiso('verRepuesto'), getRepuesto)
 repuestosRouter.get('/activos', autenticarUsuario, verificarPermiso('verRepuesto'), getRepuestosActivos)
+repuestosRouter.get('/activos-catalogo', autenticarUsuario, getRepuestosActivos)
 repuestosRouter.get('/categoria/:categoriaId', autenticarUsuario, verificarPermiso('verRepuesto'), getRepuestosPorCategoria)
 repuestosRouter.get('/activos/:categoriaId', autenticarUsuario, verificarPermiso('verRepuesto'), getRepuestosActivosPorCategoria)
 repuestosRouter.get('/:id', autenticarUsuario, verificarPermiso('verRepuesto'), ObtenerPorIdValidacion, manejarErroresValidacion,getOneRepuesto)

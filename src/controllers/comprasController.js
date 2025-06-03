@@ -111,7 +111,7 @@ const postCompra = async (req, res) => {
         for (let item of repuestos) {
             const repuesto = await Repuestos.findById(item.idRepuesto);
             if (!repuesto) {
-                return res.status(404).json({ msg: `Repuesto con id ${repuestos.nombre} no encontrado` });
+                return res.status(404).json({ msg: `Repuesto ${repuestos.nombre} no encontrado` });
             }
 
             // Establecer el valor del repuesto basado en su precio
