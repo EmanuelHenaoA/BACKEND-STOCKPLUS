@@ -168,7 +168,7 @@ const enviarTokenRecuperacion = async (req, res) => {
             html: `<p>Hola ${usuario.nombre},</p>
                    <p>Has solicitado restablecer tu contraseña.</p>
                    <p>Haz clic en el siguiente enlace para establecer una nueva contraseña:</p>
-                   <a href="http://localhost:3000/reset-password/${token}">Restablecer Contraseña</a>
+                   <a href="https://frontend-stockplus.vercel.app/reset-password/${token}">Restablecer Contraseña</a>
                    <p>Este enlace expirará en 1 hora.</p>`
         };
 
